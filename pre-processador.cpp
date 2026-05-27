@@ -16,7 +16,7 @@ std::string readFile(const std::string& path) {
 }
  
 // Remove comentários e espaços excessivos, retorna o código processado como string
-std::string preprocess(const std::string& source) {
+std::string preprocessar(const std::string& source) {
     std::string result;
     result.reserve(source.size());
  
@@ -75,20 +75,3 @@ std::string preprocess(const std::string& source) {
     return result;
 }
  
-int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        std::cerr << "Uso: " << argv[0] << " <arquivo.java>\n";
-        return 1;
-    }
- 
-    try {
-        std::string source = readFile(argv[1]);
-        std::string processed = preprocess(source);
-        std::cout << processed << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Erro: " << e.what() << "\n";
-        return 1;
-    }
- 
-    return 0;
-}

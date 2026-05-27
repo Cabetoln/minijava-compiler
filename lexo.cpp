@@ -6,6 +6,8 @@
 #include <map>
 #include <set>
 
+std::string preprocessar(const std::string& source);
+
 // ─────────────────────────────────────────────
 //  TOKENS
 // ─────────────────────────────────────────────
@@ -16,7 +18,7 @@ enum class TipoToken {
     KW_WHILE, KW_TRUE, KW_FALSE, KW_THIS, KW_NEW,
     KW_INT, KW_BOOLEAN, KW_LENGTH, KW_PRINTLN, KW_SYSTEM, KW_OUT,
     ID, NUMBER,
-    OP_AND, OP_GT, OP_PLUS, OP_MINUS, OP_TIMES, OP_NOT, OP_ASSIGN,
+    OP_AND, OP_GT, OP_LT, OP_PLUS, OP_MINUS, OP_TIMES, OP_NOT, OP_ASSIGN,
     SEP_LBRACE, SEP_RBRACE, SEP_LPAREN, SEP_RPAREN,
     SEP_LBRACK, SEP_RBRACK, SEP_SEMI, SEP_COMMA, SEP_DOT,
     TOKEN_EOF, TOKEN_ERRO
@@ -36,7 +38,7 @@ std::string categoria(TipoToken t) {
         case TipoToken::NUMBER:     return "NUMBER";
         case TipoToken::TOKEN_EOF:  return "EOF";
         case TipoToken::TOKEN_ERRO: return "ERRO";
-        case TipoToken::OP_AND: case TipoToken::OP_GT:
+        case TipoToken::OP_AND: case TipoToken::OP_GT: case TipoToken::OP_LT:
         case TipoToken::OP_PLUS: case TipoToken::OP_MINUS:
         case TipoToken::OP_TIMES: case TipoToken::OP_NOT:
         case TipoToken::OP_ASSIGN:  return "OP";
@@ -196,7 +198,8 @@ const std::set<std::string> Lexer::KEYWORDS = {
     "int","boolean","length","println","System","out"
 };
 const std::map<char,std::pair<TipoToken,std::string>> Lexer::OPERADORES = {
-    {'>',{TipoToken::OP_GT,"GT"}},   {'+',{TipoToken::OP_PLUS,"PLUS"}},
+    {'>',{TipoToken::OP_GT,"GT"}},   {'<',{TipoToken::OP_LT,"LT"}},
+    {'+',{TipoToken::OP_PLUS,"PLUS"}},
     {'-',{TipoToken::OP_MINUS,"MINUS"}}, {'*',{TipoToken::OP_TIMES,"TIMES"}},
     {'!',{TipoToken::OP_NOT,"NOT"}},  {'=',{TipoToken::OP_ASSIGN,"ASSIGN"}}
 };
