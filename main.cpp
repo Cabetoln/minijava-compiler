@@ -26,11 +26,17 @@ int main(int argc, char* argv[]) {
         Lexer lexer(processed);
         std::vector<Token> tokens = lexer.tokenizar();
 
+        if (!lexer.avisos.empty()) {
+            std::cerr << "Avisos léxicos:\n";
+            for (const auto& aviso : lexer.avisos)
+                std::cerr << aviso << "\n";
+            std::cerr << "\n";
+        }
+
         if (!lexer.erros.empty()) {
             std::cerr << "Erros léxicos encontrados:\n";
-            for (const auto& erro : lexer.erros) {
+            for (const auto& erro : lexer.erros)
                 std::cerr << erro << "\n";
-            }
             return 1;
         }
 

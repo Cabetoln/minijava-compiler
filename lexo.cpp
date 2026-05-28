@@ -53,6 +53,40 @@ std::string categoria(TipoToken t) {
 
 
 // ─────────────────────────────────────────────
+//  SUGESTÃO DE IDENTIFICADORES
+// ─────────────────────────────────────────────
+
+// Calcula distância de edição mínima entre duas strings
+static int levenshtein(const std::string& a, const std::string& b) {
+    int m = a.size(), n = b.size();
+    std::vector<std::vector<int>> dp(m + 1, std::vector<int>(n + 1));
+    for (int i = 0; i <= m; i++) dp[i][0] = i;
+    for (int j = 0; j <= n; j++) dp[0][j] = j;
+    for (int i = 1; i <= m; i++)
+        for (int j = 1; j <= n; j++)
+            dp[i][j] = (a[i-1] == b[j-1])
+                ? dp[i-1][j-1]
+                : 1 + std::min(dp[i-1][j], std::min(dp[i][j-1], dp[i-1][j-1]));
+    return dp[m][n];
+}
+
+// Retorna a keyword mais proxima se distancia <= 2, senao string vazia
+static std::string keywordMaisProxima(const std::string& w) {
+    static const std::vector<std::string> KWS = {
+        "class","public","static","void","main","String","extends",
+        "return","if","else","while","true","false","this","new",
+        "int","boolean","length","println","System","out"
+    };
+    std::string melhor;
+    int menorDist = 2; // limiar: so sugere se distancia <= 1
+    for (const auto& kw : KWS) {
+        int d = levenshtein(w, kw);
+        if (d < menorDist) { menorDist = d; melhor = kw; }
+    }
+    return melhor;
+}
+
+// ─────────────────────────────────────────────
 //  ANALISADOR LÉXICO
 // ─────────────────────────────────────────────
 
@@ -105,6 +139,7 @@ class Lexer {
 
 public:
     std::vector<std::string> erros;
+    std::vector<std::string> avisos;
 
     Lexer(const std::string& fonte)
         : src(fonte), pos(0), linha(1), coluna(1) {}
@@ -131,6 +166,14 @@ public:
                     for (char& x : sub) x = toupper(x);
                     tokens.push_back({kwTipo(w), w, sub, l, c});
                 } else {
+                    // Verifica se parece com uma keyword (possivel typo)
+                    // Ignora IDs curtos (<=2 chars) para evitar falsos positivos
+                    // Emite apenas aviso, token continua sendo ID valido
+                    std::string kw = (w.size() >= 3) ? keywordMaisProxima(w) : "";
+                    if (!kw.empty()) {
+                        avisos.push_back("L" + std::to_string(l) + ":C" + std::to_string(c)
+                            + " aviso: identificador '" + w + "' - voce quis dizer '" + kw + "'?");
+                    }
                     tokens.push_back({TipoToken::ID, w, "ID", l, c});
                 }
                 continue;
@@ -143,8 +186,16 @@ public:
                 if (pos < src.size() && (isalpha(cur()) || cur() == '_')) {
                     while (pos < src.size() && (isalnum(cur()) || cur() == '_'))
                         w += avancar();
+                    // Extrai a parte alfabetica como sugestao de identificador
+                    std::string parteAlfa;
+                    for (char x : w) if (isalpha(x) || x == '_') parteAlfa += x;
+                    std::string sugestao = "";
+                    if (!parteAlfa.empty()) {
+                        std::string kw = keywordMaisProxima(parteAlfa);
+                        sugestao = " - voce quis dizer '" + (!kw.empty() ? kw : parteAlfa) + "'?";
+                    }
                     erros.push_back("L" + std::to_string(l) + ":C" + std::to_string(c)
-                        + " numero invalido '" + w + "'");
+                        + " numero invalido '" + w + "'" + sugestao);
                     tokens.push_back({TipoToken::TOKEN_ERRO, w, "NUM_INVALIDO", l, c});
                 } else {
                     tokens.push_back({TipoToken::NUMBER, w, "NUMBER", l, c});
