@@ -76,8 +76,15 @@ private:
     }
 
     void parseVarDecl() {
-        while (current().tipo == TipoToken::ID || current().tipo == TipoToken::KW_INT ||
-               current().tipo == TipoToken::KW_BOOLEAN) {
+        while (true) {
+            // int[], int, boolean → sempre podem ser tipo de declaração
+            // ID → só é declaração se o próximo token também for ID (ex: "T left ;")
+            //       caso contrário é comando (ex: "aux01 = ...")
+            if (current().tipo != TipoToken::KW_INT &&
+                current().tipo != TipoToken::KW_BOOLEAN &&
+                !(current().tipo == TipoToken::ID && peek().tipo == TipoToken::ID))
+                break;
+
             std::string type = parseType();
             if (current().tipo == TipoToken::ID) {
                 std::string varName = current().valor;
