@@ -52,13 +52,22 @@ std::string preprocessar(const std::string& source) {
             continue;
         }
  
-        // Qualquer espaço branco: espaço, tab, \n, \r
-        if (source[i] == ' ' || source[i] == '\t' ||
-            source[i] == '\n' || source[i] == '\r') {
-            // Adiciona um único espaço se o resultado não terminar já com espaço
-            if (!result.empty() && result.back() != ' ') {
+        // Quebra de linha: preserva para o léxico rastrear número de linha
+        if (source[i] == '\n') {
+            if (!result.empty() && result.back() != '\n')
+                result += '\n';
+            i++;
+            continue;
+        }
+        if (source[i] == '\r') {
+            i++;
+            continue;
+        }
+        // Espaço horizontal: colapsa múltiplos em um só
+        if (source[i] == ' ' || source[i] == '\t') {
+            char last = result.empty() ? '\0' : result.back();
+            if (last != ' ' && last != '\n')
                 result += ' ';
-            }
             i++;
             continue;
         }

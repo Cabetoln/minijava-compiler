@@ -63,9 +63,13 @@ private:
         }
         do {
             std::string type = parseType();
-            if (expect(TipoToken::ID, "identificador")) {
-                args.push_back({type, current().valor});
+            if (current().tipo == TipoToken::ID) {
+                std::string argName = current().valor;
                 avancar();
+                args.push_back({type, argName});
+            } else {
+                erros.push_back("L" + std::to_string(current().linha) + ":C" +
+                    std::to_string(current().coluna) + " esperado identificador no argumento");
             }
         } while (match(TipoToken::SEP_COMMA));
         return args;
@@ -75,7 +79,7 @@ private:
         while (current().tipo == TipoToken::ID || current().tipo == TipoToken::KW_INT ||
                current().tipo == TipoToken::KW_BOOLEAN) {
             std::string type = parseType();
-            if (expect(TipoToken::ID, "identificador")) {
+            if (current().tipo == TipoToken::ID) {
                 std::string varName = current().valor;
                 int line = current().linha;
                 avancar();
@@ -83,6 +87,8 @@ private:
                 symbolTable.addSymbol(varName, type, "VARIABLE", scope, line);
                 expect(TipoToken::SEP_SEMI, ";");
             } else {
+                erros.push_back("L" + std::to_string(current().linha) + ":C" +
+                    std::to_string(current().coluna) + " esperado identificador na declaração de variável");
                 break;
             }
         }
@@ -92,7 +98,7 @@ private:
         while (current().tipo == TipoToken::KW_PUBLIC) {
             avancar();
             std::string retType = parseType();
-            if (expect(TipoToken::ID, "identificador")) {
+            if (current().tipo == TipoToken::ID) {
                 std::string methodName = current().valor;
                 int line = current().linha;
                 currentMethod = methodName;
@@ -119,6 +125,8 @@ private:
 
                 currentMethod = "";
             } else {
+                erros.push_back("L" + std::to_string(current().linha) + ":C" +
+                    std::to_string(current().coluna) + " esperado identificador no método");
                 break;
             }
         }
@@ -156,7 +164,7 @@ private:
             } else if (current().tipo == TipoToken::ID) {
                 std::string id = current().valor;
                 avancar();
-                if (match(TipoToken::SEP_ASSIGN)) {
+                if (match(TipoToken::OP_ASSIGN)) {
                     parseExpression();
                     expect(TipoToken::SEP_SEMI, ";");
                 } else if (match(TipoToken::SEP_LBRACK)) {
@@ -220,7 +228,6 @@ private:
     void parsePrimaryExp() {
         if (current().tipo == TipoToken::ID) {
             avancar();
-            parsePostfixExp();
         } else if (current().tipo == TipoToken::NUMBER) {
             avancar();
         } else if (match(TipoToken::KW_TRUE) || match(TipoToken::KW_FALSE)) {
@@ -228,7 +235,6 @@ private:
         } else if (match(TipoToken::SEP_LPAREN)) {
             parseExpression();
             expect(TipoToken::SEP_RPAREN, ")");
-            parsePostfixExp();
         } else if (match(TipoToken::KW_NEW)) {
             if (match(TipoToken::KW_INT)) {
                 expect(TipoToken::SEP_LBRACK, "[");
@@ -239,7 +245,10 @@ private:
                 expect(TipoToken::SEP_LPAREN, "(");
                 expect(TipoToken::SEP_RPAREN, ")");
             }
+        } else {
+            return; // token inesperado, não tenta postfix
         }
+        parsePostfixExp();
     }
 
     void parsePostfixExp() {

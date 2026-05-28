@@ -107,7 +107,7 @@ public:
     std::vector<std::string> erros;
 
     Lexer(const std::string& fonte)
-        : src(preprocessar(fonte)), pos(0), linha(1), coluna(1) {}
+        : src(fonte), pos(0), linha(1), coluna(1) {}
 
     std::vector<Token> tokenizar() {
         std::vector<Token> tokens;
