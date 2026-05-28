@@ -20,7 +20,7 @@ enum class TipoToken {
     ID, NUMBER,
     OP_AND, OP_GT, OP_LT, OP_PLUS, OP_MINUS, OP_TIMES, OP_NOT, OP_ASSIGN,
     SEP_LBRACE, SEP_RBRACE, SEP_LPAREN, SEP_RPAREN,
-    SEP_LBRACK, SEP_RBRACK, SEP_SEMI, SEP_COMMA, SEP_DOT,
+    SEP_LBRACK, SEP_RBRACK, SEP_SEMI, SEP_COMMA, SEP_DOT, SEP_ASSIGN,
     TOKEN_EOF, TOKEN_ERRO
 };
 
@@ -46,7 +46,7 @@ std::string categoria(TipoToken t) {
         case TipoToken::SEP_LPAREN: case TipoToken::SEP_RPAREN:
         case TipoToken::SEP_LBRACK: case TipoToken::SEP_RBRACK:
         case TipoToken::SEP_SEMI: case TipoToken::SEP_COMMA:
-        case TipoToken::SEP_DOT:    return "SEP";
+        case TipoToken::SEP_DOT: case TipoToken::SEP_ASSIGN: return "SEP";
         default:                    return "KEYWORD";
     }
 }

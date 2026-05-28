@@ -64,8 +64,8 @@ private:
         do {
             std::string type = parseType();
             if (expect(TipoToken::ID, "identificador")) {
-                args.push_back({type, current().valor});
-                avancar();
+                std::string name = tokens[pos-1].valor;
+                args.push_back({type, name});
             }
         } while (match(TipoToken::SEP_COMMA));
         return args;
@@ -76,9 +76,8 @@ private:
                current().tipo == TipoToken::KW_BOOLEAN) {
             std::string type = parseType();
             if (expect(TipoToken::ID, "identificador")) {
-                std::string varName = current().valor;
-                int line = current().linha;
-                avancar();
+                std::string varName = tokens[pos-1].valor;
+                int line = tokens[pos-1].linha;
                 std::string scope = currentMethod.empty() ? currentClass + ":GLOBAL" : currentClass + "." + currentMethod;
                 symbolTable.addSymbol(varName, type, "VARIABLE", scope, line);
                 expect(TipoToken::SEP_SEMI, ";");
@@ -93,10 +92,9 @@ private:
             avancar();
             std::string retType = parseType();
             if (expect(TipoToken::ID, "identificador")) {
-                std::string methodName = current().valor;
-                int line = current().linha;
+                std::string methodName = tokens[pos-1].valor;
+                int line = tokens[pos-1].linha;
                 currentMethod = methodName;
-                avancar();
                 expect(TipoToken::SEP_LPAREN, "(");
 
                 auto args = parseArgs();
@@ -135,9 +133,8 @@ private:
                 parseExpression();
                 expect(TipoToken::SEP_RPAREN, ")");
                 parseCommand();
-                if (match(TipoToken::KW_ELSE)) {
-                    parseCommand();
-                }
+                expect(TipoToken::KW_ELSE, "else");
+                parseCommand();
             } else if (match(TipoToken::KW_WHILE)) {
                 expect(TipoToken::SEP_LPAREN, "(");
                 parseExpression();
@@ -156,7 +153,7 @@ private:
             } else if (current().tipo == TipoToken::ID) {
                 std::string id = current().valor;
                 avancar();
-                if (match(TipoToken::SEP_ASSIGN)) {
+                if (match(TipoToken::OP_ASSIGN)) {
                     parseExpression();
                     expect(TipoToken::SEP_SEMI, ";");
                 } else if (match(TipoToken::SEP_LBRACK)) {
@@ -220,7 +217,6 @@ private:
     void parsePrimaryExp() {
         if (current().tipo == TipoToken::ID) {
             avancar();
-            parsePostfixExp();
         } else if (current().tipo == TipoToken::NUMBER) {
             avancar();
         } else if (match(TipoToken::KW_TRUE) || match(TipoToken::KW_FALSE)) {
@@ -228,7 +224,6 @@ private:
         } else if (match(TipoToken::SEP_LPAREN)) {
             parseExpression();
             expect(TipoToken::SEP_RPAREN, ")");
-            parsePostfixExp();
         } else if (match(TipoToken::KW_NEW)) {
             if (match(TipoToken::KW_INT)) {
                 expect(TipoToken::SEP_LBRACK, "[");
@@ -240,6 +235,7 @@ private:
                 expect(TipoToken::SEP_RPAREN, ")");
             }
         }
+        parsePostfixExp();
     }
 
     void parsePostfixExp() {
@@ -249,14 +245,12 @@ private:
                 expect(TipoToken::SEP_RBRACK, "]");
             } else if (match(TipoToken::SEP_DOT)) {
                 if (match(TipoToken::KW_LENGTH)) {
-                } else if (current().tipo == TipoToken::ID) {
-                    avancar();
+                } else {
+                    parsePrimaryExp();
                     if (match(TipoToken::SEP_LPAREN)) {
                         parseListExp();
                         expect(TipoToken::SEP_RPAREN, ")");
                     }
-                } else {
-                    break;
                 }
             } else {
                 break;
