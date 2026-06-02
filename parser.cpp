@@ -3,6 +3,7 @@ class Parser {
 private:
     std::vector<Token> tokens;
     size_t pos;
+    int prevLinha = 1, prevColuna = 1;
     SymbolTable symbolTable;
     std::string currentClass;
     std::string currentMethod;
@@ -16,7 +17,11 @@ private:
     }
 
     void avancar() {
-        if (pos < tokens.size()) pos++;
+        if (pos < tokens.size()) {
+            prevLinha = tokens[pos].linha;
+            prevColuna = tokens[pos].coluna;
+            pos++;
+        }
     }
 
     bool match(TipoToken tipo) {
@@ -27,10 +32,17 @@ private:
         return false;
     }
 
+    // Separadores de fim de instrução: quando faltam, o erro pertence à linha anterior
+    bool isSufixSeparator(TipoToken tipo) {
+        return tipo == TipoToken::SEP_SEMI;
+    }
+
     bool expect(TipoToken tipo, const std::string& msg) {
         if (current().tipo != tipo) {
-            erros.push_back("L" + std::to_string(current().linha) + ":C" +
-                std::to_string(current().coluna) + " esperado " + msg);
+            int linha = isSufixSeparator(tipo) ? prevLinha : current().linha;
+            int coluna = isSufixSeparator(tipo) ? prevColuna : current().coluna;
+            erros.push_back("L" + std::to_string(linha) + ":C" +
+                std::to_string(coluna) + " esperado " + msg);
             return false;
         }
         avancar();

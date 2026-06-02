@@ -24,6 +24,17 @@ std::string preprocessar(const std::string& source) {
     size_t n = source.size();
  
     while (i < n) {
+        // Comentário de bloco: /* ... */
+        if (i + 1 < n && source[i] == '/' && source[i + 1] == '*') {
+            i += 2;
+            while (i + 1 < n && !(source[i] == '*' && source[i + 1] == '/')) {
+                if (source[i] == '\n') result += '\n';
+                i++;
+            }
+            i += 2; // consome o */
+            continue;
+        }
+
         // Comentário de linha única: //
         if (i + 1 < n && source[i] == '/' && source[i + 1] == '/') {
             i += 2;
@@ -32,29 +43,16 @@ std::string preprocessar(const std::string& source) {
             }
             // Mantém o '\n' para não juntar tokens de linhas diferentes
             if (i < n) {
-                result += ' ';
-                i++; // consome o '\n'
+                result += '\n';
+                i++;
             }
             continue;
         }
  
-        // Comentário de múltiplas linhas: /* ... */
-        if (i + 1 < n && source[i] == '/' && source[i + 1] == '*') {
-            i += 2;
-            while (i + 1 < n && !(source[i] == '*' && source[i + 1] == '/')) {
-                i++;
-            }
-            if (i + 1 >= n) {
-                throw std::runtime_error("Comentário de bloco não fechado (falta */)");
-            }
-            i += 2; // consome */
-            result += ' '; // substitui por espaço para não juntar tokens
-            continue;
-        }
+        
  
         // Quebra de linha: preserva para o léxico rastrear número de linha
         if (source[i] == '\n') {
-            if (!result.empty() && result.back() != '\n')
                 result += '\n';
             i++;
             continue;
