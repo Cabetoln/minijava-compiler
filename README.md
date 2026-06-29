@@ -9,7 +9,8 @@ sintático descendente e tabela de símbolos.
 - **main.cpp** — Arquivo principal que orquestra o compilador e trata as flags
 - **io.cpp** — Leitura do arquivo-fonte
 - **lexo.cpp** — Analisador léxico (tokens + comentários)
-- **parser.cpp** — Analisador sintático descendente recursivo
+- **ast.cpp** — Definição dos nós da árvore sintática abstrata e seu impressor
+- **parser.cpp** — Analisador sintático descendente recursivo (constrói a AST)
 - **symbol_table.cpp** — Tabela de símbolos com suporte a escopos global e local
 
 # Compilação

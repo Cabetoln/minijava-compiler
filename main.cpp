@@ -11,6 +11,7 @@
 #include "io.cpp"
 #include "lexo.cpp"
 #include "symbol_table.cpp"
+#include "ast.cpp"
 #include "parser.cpp"
 
 // ─────────────────────────────────────────────
@@ -133,8 +134,8 @@ int main(int argc, char* argv[]) {
 
         // ── Saídas condicionadas a flags ────────────────
         if (op.ast) {
-            // TODO (Fase 2): impressão da AST quando o parser construí-la.
-            std::cout << "\n[--ast] A construção da AST será adicionada na Fase 2.\n";
+            std::cout << "\nÁrvore Sintática Abstrata (AST):\n";
+            printPrograma(std::cout, parser.getPrograma());
         }
 
         if (op.tabela)
