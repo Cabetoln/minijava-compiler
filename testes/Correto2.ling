@@ -1,0 +1,54 @@
+/*
+ * Teste CORRETO 2 - herança, despacho dinâmico e vetores.
+ * Exercita: extends, sobrescrita com mesma assinatura, atribuição de
+ * subclasse a superclasse, acesso a campo herdado, new int[], length
+ * e indexação de vetor.
+ */
+class Principal {
+    public static void main(String[] a){
+        System.out.println(new Lista().executar(8));
+    }
+}
+
+class Animal {
+    int idade ;
+
+    public int som(){
+        return 0 ;
+    }
+}
+
+class Cachorro extends Animal {
+    public int som(){
+        return 1 ;
+    }
+}
+
+class Lista {
+    int[] valores ;
+    int tamanho ;
+
+    public int executar(int n){
+        Animal bicho ;
+        int s ;
+        int i ;
+
+        tamanho = n ;
+        valores = new int[n] ;
+        i = 0 ;
+        while (i < tamanho) {
+            valores[i] = i * 2 ;
+            i = i + 1 ;
+        }
+
+        bicho = new Cachorro() ;   // subclasse atribuída à superclasse
+        s = bicho.som() ;          // despacho do método
+
+        if (s < valores.length) {
+            s = s + valores[0] ;
+        } else {
+            s = s - 1 ;
+        }
+        return s ;
+    }
+}

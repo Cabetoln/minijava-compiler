@@ -1,0 +1,25 @@
+/*
+ * Teste COM ERRO 1 - erro SINTÁTICO.
+ * Na nova gramática o corpo do if/else e do while precisa de chaves { }.
+ * Aqui o if aparece sem chaves, o que deve ser reportado como erro
+ * sintático (com linha e coluna).
+ */
+class ProgramaErro {
+    public static void main(String[] a){
+        System.out.println(new Conta().saldo(100));
+    }
+}
+
+class Conta {
+    int valor ;
+
+    public int saldo(int deposito){
+        int x ;
+        x = deposito ;
+        if (x < 50)
+            x = x + 1 ;      // ERRO: corpo do if sem chaves { }
+        else
+            x = x - 1 ;      // ERRO: corpo do else sem chaves { }
+        return x ;
+    }
+}

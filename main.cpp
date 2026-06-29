@@ -13,6 +13,7 @@
 #include "symbol_table.cpp"
 #include "ast.cpp"
 #include "parser.cpp"
+#include "semantic.cpp"
 
 // ─────────────────────────────────────────────
 //  FLAGS DE LINHA DE COMANDO
@@ -141,6 +142,16 @@ int main(int argc, char* argv[]) {
         if (op.tabela)
             parser.getSymbolTable().printTable();
 
+        // ── Análise semântica ───────────────────────────
+        SemanticAnalyzer sem(parser.getPrograma());
+        if (!sem.analyze()) {
+            std::cerr << "\nErros semânticos encontrados:\n";
+            for (const auto& erro : sem.erros)
+                std::cerr << erro << "\n";
+            return 1;
+        }
+
+        std::cout << "\n✓ Código semanticamente correto!\n";
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "Erro: " << e.what() << "\n";

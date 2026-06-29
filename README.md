@@ -11,17 +11,25 @@ sintático descendente e tabela de símbolos.
 - **lexo.cpp** — Analisador léxico (tokens + comentários)
 - **ast.cpp** — Definição dos nós da árvore sintática abstrata e seu impressor
 - **parser.cpp** — Analisador sintático descendente recursivo (constrói a AST)
+- **semantic.cpp** — Análise semântica (tipos, herança, resolução de nomes)
 - **symbol_table.cpp** — Tabela de símbolos com suporte a escopos global e local
 
 # Compilação
 
 Para compilar o projeto, basta rodar:
 
-g++ main.cpp -o compilador
+g++ -std=c++14 main.cpp -o compilador
 
 Para executar o projeto, basta rodar:
 
 ./compilador <arquivo.ling> [flags]
+
+Exemplos:
+
+./compilador testes/Correto1.ling
+./compilador testes/Correto1.ling --ast --tabela
+./compilador testes/Erro1_Sintatico.ling --tokens
+./compilador testes/Erro2_Semantico.ling --sugestoes --parar
 
 # Flags
 
@@ -31,6 +39,19 @@ Para executar o projeto, basta rodar:
 - **--sugestoes**   Exibe sugestões de correção léxica e sintática.
 - **--parar**       Para no primeiro erro léxico (senão, processa toda a entrada).
 - **--help**        Mostra a ajuda.
+
+# Testes
+
+A pasta `testes/` contém códigos de exemplo conformes à nova gramática:
+
+- **Correto1.ling** — fatorial iterativo (if/else e while com chaves, precedência).
+- **Correto2.ling** — herança, despacho dinâmico, vetores e `length`.
+- **Erro1_Sintatico.ling** — if/else sem chaves (erro sintático).
+- **Erro2_Semantico.ling** — incompatibilidades de tipo e classe vazia (erros semânticos).
+
+A subpasta `testes/unidade1_legado/` guarda os códigos da Unidade 1
+(`Program1`–`Program5`), que usam if/else sem chaves e por isso **não** são
+válidos na gramática nova — ficam apenas como referência histórica.
 
 # Autores
 

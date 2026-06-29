@@ -1,0 +1,32 @@
+/*
+ * Teste COM ERRO 2 - erros SEMÂNTICOS.
+ * O código está sintaticamente correto, mas viola regras semânticas:
+ *   - atribuição de boolean a int e de int a boolean;
+ *   - condição de if não-boolean;
+ *   - uso de variável não declarada;
+ *   - return incompatível com o tipo do método;
+ *   - classe vazia.
+ */
+class ProgramaErro {
+    public static void main(String[] a){
+        System.out.println(new Conta().processar(10));
+    }
+}
+
+class Conta {
+    int saldo ;
+
+    public int processar(int n){
+        boolean ativo ;
+        ativo = n + 1 ;          // ERRO: int atribuído a boolean
+        saldo = ativo ;          // ERRO: boolean atribuído a int
+        if (n) {                 // ERRO: condição não-boolean
+            saldo = saldo + 1 ;
+        }
+        saldo = desconhecida ;   // ERRO: variável não declarada
+        return ativo ;           // ERRO: return boolean em método int
+    }
+}
+
+class SemNada {                  // ERRO: classe vazia
+}
