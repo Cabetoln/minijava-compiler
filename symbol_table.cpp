@@ -42,46 +42,28 @@ public:
         return nullptr;
     }
 
-    std::vector<Symbol> getSymbolsByScope(const std::string& scope) {
-        std::vector<Symbol> result;
-        for (const auto& sym : symbols) {
-            if (sym.scope == scope) {
-                result.push_back(sym);
-            }
-        }
-        return result;
-    }
-
     void printTable() {
         if (symbols.empty()) {
-            std::cout << "Tabela de Símbolos vazia.\n";
+            std::cout << "Tabela de simbolos vazia.\n";
             return;
         }
 
-        std::cout << "\n┌─────────────────────────────────────────────────────────────────────────────┐\n";
-        std::cout << "│ Tabela de Símbolos                                                          │\n";
-        std::cout << "├─────────────────────────────────────────────────────────────────────────────┤\n";
-        std::cout << "│ "
-                  << std::left << std::setw(15) << "Nome"
-                  << "│ " << std::setw(12) << "Tipo"
-                  << "│ " << std::setw(12) << "Categoria"
-                  << "│ " << std::setw(20) << "Escopo"
-                  << "│ " << std::setw(4) << "Linha" << "│\n";
-        std::cout << "├─────────────────────────────────────────────────────────────────────────────┤\n";
+        std::cout << "\nTabela de Simbolos\n";
+        std::cout << std::left
+                  << std::setw(16) << "Nome"
+                  << std::setw(13) << "Tipo"
+                  << std::setw(13) << "Categoria"
+                  << std::setw(22) << "Escopo"
+                  << "Linha\n";
+        std::cout << std::string(68, '-') << "\n";
 
         for (const auto& sym : symbols) {
-            std::cout << "│ "
-                      << std::left << std::setw(15) << sym.name
-                      << "│ " << std::setw(12) << sym.type
-                      << "│ " << std::setw(12) << sym.category
-                      << "│ " << std::setw(20) << sym.scope
-                      << "│ " << std::setw(4) << sym.line << "│\n";
+            std::cout << std::left
+                      << std::setw(16) << sym.name
+                      << std::setw(13) << sym.type
+                      << std::setw(13) << sym.category
+                      << std::setw(22) << sym.scope
+                      << sym.line << "\n";
         }
-
-        std::cout << "└─────────────────────────────────────────────────────────────────────────────┘\n";
-    }
-
-    std::vector<Symbol> getAll() {
-        return symbols;
     }
 };

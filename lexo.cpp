@@ -6,10 +6,6 @@
 #include <map>
 #include <set>
 
-// ─────────────────────────────────────────────
-//  TOKENS
-// ─────────────────────────────────────────────
-
 enum class TipoToken {
     KW_CLASS, KW_PUBLIC, KW_STATIC, KW_VOID, KW_MAIN,
     KW_STRING, KW_EXTENDS, KW_RETURN, KW_IF, KW_ELSE,
@@ -49,12 +45,7 @@ std::string categoria(TipoToken t) {
     }
 }
 
-
-// ─────────────────────────────────────────────
-//  SUGESTÃO DE IDENTIFICADORES
-// ─────────────────────────────────────────────
-
-// Calcula distância de edição mínima entre duas strings
+// Distancia de edicao entre duas strings, usada para sugerir keywords.
 static int levenshtein(const std::string& a, const std::string& b) {
     int m = a.size(), n = b.size();
     std::vector<std::vector<int>> dp(m + 1, std::vector<int>(n + 1));
@@ -68,7 +59,7 @@ static int levenshtein(const std::string& a, const std::string& b) {
     return dp[m][n];
 }
 
-// Retorna a keyword mais proxima se distancia <= 2, senao string vazia
+// Keyword mais proxima de w (so sugere se a distancia for <= 1).
 static std::string keywordMaisProxima(const std::string& w) {
     static const std::vector<std::string> KWS = {
         "class","public","static","void","main","String","extends",
@@ -76,17 +67,13 @@ static std::string keywordMaisProxima(const std::string& w) {
         "int","boolean","length","println","System","out"
     };
     std::string melhor;
-    int menorDist = 2; // limiar: so sugere se distancia <= 1
+    int menorDist = 2;
     for (const auto& kw : KWS) {
         int d = levenshtein(w, kw);
         if (d < menorDist) { menorDist = d; melhor = kw; }
     }
     return melhor;
 }
-
-// ─────────────────────────────────────────────
-//  ANALISADOR LÉXICO
-// ─────────────────────────────────────────────
 
 class Lexer {
     std::string src;
@@ -105,22 +92,19 @@ class Lexer {
         return c;
     }
 
-    // Consome espaços em branco E comentários (// de linha e /* */ de bloco).
-    // O reconhecimento de comentários agora vive no léxico: não há mais
-    // pré-processador. Um comentário de bloco não terminado é erro léxico.
+    // Pula espacos em branco e comentarios (// e /* */).
+    // Comentario de bloco sem fechar e erro lexico.
     void skip() {
         while (pos < src.size()) {
             char c = cur();
             if (c==' '||c=='\t'||c=='\r'||c=='\n') { avancar(); continue; }
 
-            // Comentário de linha: //
             if (c=='/' && pos+1 < src.size() && src[pos+1]=='/') {
                 avancar(); avancar();
                 while (pos < src.size() && cur() != '\n') avancar();
                 continue;
             }
 
-            // Comentário de bloco: /* ... */
             if (c=='/' && pos+1 < src.size() && src[pos+1]=='*') {
                 int l = linha, col = coluna;
                 avancar(); avancar();
@@ -180,9 +164,7 @@ public:
     std::vector<Token> tokenizar() {
         std::vector<Token> tokens;
         while (true) {
-            // Se a flag estiver ativa, interrompe a tokenização assim que
-            // o primeiro erro léxico for registrado. Caso contrário, processa
-            // toda a entrada e acumula todos os erros.
+            // Com a flag --parar, encerra no primeiro erro lexico.
             if (pararNoPrimeiroErro && !erros.empty()) break;
             skip();
             if (pos >= src.size()) {
@@ -193,7 +175,7 @@ public:
             int l = linha, c = coluna;
             char ch = cur();
 
-            // Identificador ou keyword: [a-zA-Z_][a-zA-Z0-9_]*
+            // Identificador ou keyword
             if (isalpha(ch) || ch == '_') {
                 std::string w;
                 while (pos < src.size() && (isalnum(cur()) || cur() == '_'))
@@ -203,9 +185,7 @@ public:
                     for (char& x : sub) x = toupper(x);
                     tokens.push_back({kwTipo(w), w, sub, l, c});
                 } else {
-                    // Verifica se parece com uma keyword (possivel typo)
-                    // Ignora IDs curtos (<=2 chars) para evitar falsos positivos
-                    // Emite apenas aviso, token continua sendo ID valido
+                    // Se o ID parece um typo de keyword, guarda um aviso (mas o token continua valido).
                     std::string kw = (w.size() >= 3) ? keywordMaisProxima(w) : "";
                     if (!kw.empty()) {
                         avisos.push_back("L" + std::to_string(l) + ":C" + std::to_string(c)

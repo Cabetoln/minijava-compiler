@@ -56,7 +56,6 @@ private:
             : currentClass + "." + currentMethod;
     }
 
-    // ── Tipos e argumentos ──────────────────────────
     std::string parseType() {
         if (match(TipoToken::KW_INT)) {
             if (match(TipoToken::SEP_LBRACK)) {
@@ -122,7 +121,6 @@ private:
         return vars;
     }
 
-    // ── Métodos ─────────────────────────────────────
     std::vector<MethodDecl> parseMethodDecl() {
         std::vector<MethodDecl> metodos;
         while (current().tipo == TipoToken::KW_PUBLIC) {
@@ -165,7 +163,6 @@ private:
         return metodos;
     }
 
-    // ── Comandos ────────────────────────────────────
     bool inicioDeComando(TipoToken t) {
         return t == TipoToken::ID || t == TipoToken::KW_IF ||
                t == TipoToken::KW_WHILE || t == TipoToken::KW_SYSTEM;
@@ -268,7 +265,7 @@ private:
         return nullptr;
     }
 
-    // ── Expressões (com precedência) ────────────────
+    // Expressoes em cascata, da menor para a maior precedencia.
     ExpPtr parseExpression() { return parseAndExp(); }
 
     // And_exp → Rel_exp (&& Rel_exp)*
@@ -346,16 +343,20 @@ private:
         ExpPtr base = parsePrimaryExp();
         while (true) {
             if (current().tipo == TipoToken::SEP_LBRACK) {
+                Token lb = current();
                 avancar();
                 auto a = std::make_unique<ArrayAccessExp>();
+                a->linha = lb.linha; a->coluna = lb.coluna;
                 a->arranjo = std::move(base);
                 a->indice = parseExpression();
                 expect(TipoToken::SEP_RBRACK, "]");
                 base = std::move(a);
             } else if (current().tipo == TipoToken::SEP_DOT) {
+                Token dot = current();
                 avancar();
                 if (match(TipoToken::KW_LENGTH)) {
                     auto l = std::make_unique<LengthExp>();
+                    l->linha = dot.linha; l->coluna = dot.coluna;
                     l->alvo = std::move(base);
                     base = std::move(l);
                 } else if (current().tipo == TipoToken::ID) {

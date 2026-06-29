@@ -15,18 +15,14 @@
 #include "parser.cpp"
 #include "semantic.cpp"
 
-// ─────────────────────────────────────────────
-//  FLAGS DE LINHA DE COMANDO
-// ─────────────────────────────────────────────
-
 struct Opcoes {
     std::string arquivo;
-    bool tokens          = false; // --tokens   : imprime a lista de tokens
-    bool ast             = false; // --ast      : imprime a árvore sintática abstrata
-    bool tabela          = false; // --tabela   : imprime a tabela de símbolos
-    bool sugestoes       = false; // --sugestoes: imprime sugestões de correção
-    bool pararPrimeiroErro = false; // --parar  : para no primeiro erro léxico
-    bool ajuda           = false;
+    bool tokens = false;
+    bool ast = false;
+    bool tabela = false;
+    bool sugestoes = false;
+    bool pararPrimeiroErro = false;
+    bool ajuda = false;
 };
 
 void imprimirAjuda(const char* prog) {
@@ -59,10 +55,6 @@ Opcoes parseArgs(int argc, char* argv[]) {
     }
     return op;
 }
-
-// ─────────────────────────────────────────────
-//  IMPRESSÃO DA LISTA DE TOKENS
-// ─────────────────────────────────────────────
 
 void imprimirTokens(const std::vector<Token>& tokens) {
     std::cout << "\nLista de Tokens:\n";
@@ -97,7 +89,7 @@ int main(int argc, char* argv[]) {
     try {
         std::string source = readFile(op.arquivo);
 
-        // ── Análise léxica ──────────────────────────────
+        // Analise lexica
         Lexer lexer(source);
         lexer.pararNoPrimeiroErro = op.pararPrimeiroErro;
         std::vector<Token> tokens = lexer.tokenizar();
@@ -105,7 +97,6 @@ int main(int argc, char* argv[]) {
         if (op.tokens)
             imprimirTokens(tokens);
 
-        // Sugestões léxicas (typos de palavras-chave) só com a flag
         if (op.sugestoes && !lexer.avisos.empty()) {
             std::cerr << "Sugestões léxicas:\n";
             for (const auto& aviso : lexer.avisos)
@@ -120,7 +111,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        // ── Análise sintática ───────────────────────────
+        // Analise sintatica
         Parser parser(tokens);
         bool success = parser.parse();
 
@@ -131,9 +122,8 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        std::cout << "\n✓ Código sintaticamente correto!\n";
+        std::cout << "\nCodigo sintaticamente correto.\n";
 
-        // ── Saídas condicionadas a flags ────────────────
         if (op.ast) {
             std::cout << "\nÁrvore Sintática Abstrata (AST):\n";
             printPrograma(std::cout, parser.getPrograma());
@@ -142,7 +132,7 @@ int main(int argc, char* argv[]) {
         if (op.tabela)
             parser.getSymbolTable().printTable();
 
-        // ── Análise semântica ───────────────────────────
+        // Analise semantica
         SemanticAnalyzer sem(parser.getPrograma());
         if (!sem.analyze()) {
             std::cerr << "\nErros semânticos encontrados:\n";
@@ -151,7 +141,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        std::cout << "\n✓ Código semanticamente correto!\n";
+        std::cout << "\nCodigo semanticamente correto.\n";
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "Erro: " << e.what() << "\n";

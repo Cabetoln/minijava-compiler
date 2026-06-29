@@ -1,8 +1,4 @@
-/*
- * Teste CORRETO 1 - fatorial iterativo.
- * Exercita: if/else e while com chaves, precedência de operadores
- * (n + 1 antes de <), chamada de método e tabela de símbolos.
- */
+/* Fatorial iterativo. Codigo correto. */
 class Fatorial {
     public static void main(String[] a){
         System.out.println(new Calculadora().fatorial(5));

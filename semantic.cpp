@@ -4,13 +4,9 @@
 #include <set>
 #include <iostream>
 
-// ─────────────────────────────────────────────
-//  ANÁLISE SEMÂNTICA
-//
-//  Percorre a AST em duas passagens:
-//    1. Coleta classes, campos e assinaturas de métodos (ambiente global).
-//    2. Verifica tipos, resolução de nomes, herança e compatibilidades.
-// ─────────────────────────────────────────────
+// Analise semantica em duas passagens:
+//   1. coleta classes, campos e assinaturas de metodos;
+//   2. verifica tipos, resolucao de nomes e heranca.
 
 static const std::string ERRO_TIPO = "error";
 
@@ -110,7 +106,7 @@ class SemanticAnalyzer {
         return buscarCampo(classeAtual, nome, tipoOut);
     }
 
-    // ── PASSAGEM 1: coleta de declarações ───────────
+    // Passagem 1: coleta de declaracoes
     void coletarClasses() {
         // Classe principal (só contém main).
         {
@@ -217,7 +213,7 @@ class SemanticAnalyzer {
         }
     }
 
-    // ── PASSAGEM 2: verificação de tipos ────────────
+    // Passagem 2: verificacao de tipos
     void checarPrograma() {
         // main
         classeAtual = prog.principal.nome;
@@ -260,7 +256,6 @@ class SemanticAnalyzer {
                    m.tipoRetorno + "' do método '" + m.nome + "'");
     }
 
-    // ── Comandos ────────────────────────────────────
     void checarStmt(const Stmt* s) {
         if (!s) return;
 
@@ -317,7 +312,7 @@ class SemanticAnalyzer {
         }
     }
 
-    // ── Expressões: devolve o tipo (ou ERRO_TIPO) ───
+    // Devolve o tipo da expressao, ou ERRO_TIPO se ja houve erro.
     std::string checarExp(const Exp* e) {
         if (!e) return ERRO_TIPO;
 

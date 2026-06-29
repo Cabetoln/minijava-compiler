@@ -1,9 +1,4 @@
-/*
- * Teste CORRETO 2 - herança, despacho dinâmico e vetores.
- * Exercita: extends, sobrescrita com mesma assinatura, atribuição de
- * subclasse a superclasse, acesso a campo herdado, new int[], length
- * e indexação de vetor.
- */
+/* Heranca, sobrescrita de metodo e vetores. Codigo correto. */
 class Principal {
     public static void main(String[] a){
         System.out.println(new Lista().executar(8));

@@ -3,19 +3,15 @@
 #include <memory>
 #include <iostream>
 
-// ─────────────────────────────────────────────
-//  ÁRVORE SINTÁTICA ABSTRATA (AST)
-//
-//  Cada nó guarda linha/coluna para a fase semântica e um campo `tipo`
-//  (preenchido na Fase 3) com o tipo inferido da expressão.
-// ─────────────────────────────────────────────
+// Nos da arvore sintatica abstrata. Cada no guarda linha/coluna para
+// as mensagens de erro da fase semantica.
 
 static std::string esp(int n) { return std::string(n * 2, ' '); }
 
-// ---- Expressões ----
+// Expressoes
 struct Exp {
     int linha = 0, coluna = 0;
-    std::string tipo;               // tipo semântico (Fase 3)
+    std::string tipo;
     virtual ~Exp() = default;
     virtual void print(std::ostream& os, int n) const = 0;
 };
@@ -107,7 +103,7 @@ struct NewArrayExp : Exp {           // new int[tamanho]
     }
 };
 
-// ---- Comandos ----
+// Comandos
 struct Stmt {
     int linha = 0, coluna = 0;
     virtual ~Stmt() = default;
@@ -169,7 +165,7 @@ struct PrintStmt : Stmt {             // System.out.println(valor);
     }
 };
 
-// ---- Declarações ----
+// Declaracoes
 struct VarDecl  { std::string tipo, nome; int linha = 0; };
 struct Param    { std::string tipo, nome; };
 
@@ -201,7 +197,7 @@ struct Program {
     std::vector<ClassDecl> classes;
 };
 
-// ---- Impressor da AST ----
+// Impressao da arvore
 inline void printPrograma(std::ostream& os, const Program& p) {
     os << "Program\n";
     os << esp(1) << "MainClass '" << p.principal.nome

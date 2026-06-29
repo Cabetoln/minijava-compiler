@@ -1,12 +1,4 @@
-/*
- * Teste COM ERRO 2 - erros SEMÂNTICOS.
- * O código está sintaticamente correto, mas viola regras semânticas:
- *   - atribuição de boolean a int e de int a boolean;
- *   - condição de if não-boolean;
- *   - uso de variável não declarada;
- *   - return incompatível com o tipo do método;
- *   - classe vazia.
- */
+/* Codigo sintaticamente valido, mas com varios erros de tipo (ver comentarios abaixo). */
 class ProgramaErro {
     public static void main(String[] a){
         System.out.println(new Conta().processar(10));
