@@ -6,8 +6,6 @@
 #include <map>
 #include <set>
 
-std::string preprocessar(const std::string& source);
-
 // ─────────────────────────────────────────────
 //  TOKENS
 // ─────────────────────────────────────────────
@@ -107,9 +105,43 @@ class Lexer {
         return c;
     }
 
+    // Consome espaços em branco E comentários (// de linha e /* */ de bloco).
+    // O reconhecimento de comentários agora vive no léxico: não há mais
+    // pré-processador. Um comentário de bloco não terminado é erro léxico.
     void skip() {
-        while (pos < src.size() && (cur()==' '||cur()=='\t'||cur()=='\r'||cur()=='\n'))
-            avancar();
+        while (pos < src.size()) {
+            char c = cur();
+            if (c==' '||c=='\t'||c=='\r'||c=='\n') { avancar(); continue; }
+
+            // Comentário de linha: //
+            if (c=='/' && pos+1 < src.size() && src[pos+1]=='/') {
+                avancar(); avancar();
+                while (pos < src.size() && cur() != '\n') avancar();
+                continue;
+            }
+
+            // Comentário de bloco: /* ... */
+            if (c=='/' && pos+1 < src.size() && src[pos+1]=='*') {
+                int l = linha, col = coluna;
+                avancar(); avancar();
+                bool fechado = false;
+                while (pos < src.size()) {
+                    if (cur()=='*' && pos+1 < src.size() && src[pos+1]=='/') {
+                        avancar(); avancar();
+                        fechado = true;
+                        break;
+                    }
+                    avancar();
+                }
+                if (!fechado) {
+                    erros.push_back("L" + std::to_string(l) + ":C" + std::to_string(col)
+                        + " comentário de bloco não terminado (faltou '*/')");
+                }
+                continue;
+            }
+
+            break;
+        }
     }
 
     TipoToken kwTipo(const std::string& w) {
@@ -140,6 +172,7 @@ class Lexer {
 public:
     std::vector<std::string> erros;
     std::vector<std::string> avisos;
+    bool pararNoPrimeiroErro = false;
 
     Lexer(const std::string& fonte)
         : src(fonte), pos(0), linha(1), coluna(1) {}
@@ -147,6 +180,10 @@ public:
     std::vector<Token> tokenizar() {
         std::vector<Token> tokens;
         while (true) {
+            // Se a flag estiver ativa, interrompe a tokenização assim que
+            // o primeiro erro léxico for registrado. Caso contrário, processa
+            // toda a entrada e acumula todos os erros.
+            if (pararNoPrimeiroErro && !erros.empty()) break;
             skip();
             if (pos >= src.size()) {
                 tokens.push_back({TipoToken::TOKEN_EOF, "", "EOF", linha, coluna});
